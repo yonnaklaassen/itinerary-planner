@@ -2,7 +2,9 @@
   "dependencies": {
     "better-sqlite3": "^12.2.0",
     "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "pg": "^8.16.3",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   },

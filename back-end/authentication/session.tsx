@@ -1,8 +1,6 @@
-import Database from "better-sqlite3/lib/database";
+import { Pool } from "pg";
 import { Buffer } from "buffer";
 import generateSecureRandomString from "./session-id-generation";
-
-
 
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
 
@@ -16,7 +14,7 @@ export interface SessionWithToken extends Session {
   token: string;
 }
 
-export async function createSession(db: Database): Promise<SessionWithToken> {
+export async function createSession(pool: Pool): Promise<SessionWithToken> {
   const now = new Date();
 
   const id = generateSecureRandomString();
@@ -32,26 +30,22 @@ export async function createSession(db: Database): Promise<SessionWithToken> {
     token
   };
 
-  const stmt = db.prepare(
-    "INSERT INTO session (id, secret_hash, created_at) VALUES (?, ?, ?)"
-  );
-  stmt.run(
-    session.id,
-    Buffer.from(session.secretHash),
-    Math.floor(session.createdAt.getTime() / 1000)
+  await pool.query(
+    "INSERT INTO session (id, secret_hash, created_at) VALUES ($1, $2, $3)",
+    [session.id, Buffer.from(session.secretHash), Math.floor(session.createdAt.getTime() / 1000)]
   );
 
   return session;
 }
 
-export async function validateSessionToken(db: Database, token: string): Promise<Session | null> {
+export async function validateSessionToken(pool: Pool, token: string): Promise<Session | null> {
   const tokenParts = token.split(".");
   if (tokenParts.length !== 2) return null;
 
   const sessionId = tokenParts[0];
   const sessionSecret = tokenParts[1];
 
-  const session = getSession(db, sessionId);
+  const session = await getSession(pool, sessionId);
   if (!session) return null;
 
   const tokenSecretHash = await hashSecret(sessionSecret);
@@ -61,33 +55,35 @@ export async function validateSessionToken(db: Database, token: string): Promise
   return session;
 }
 
-
-export function getSession(db: Database, sessionId: string): Session | null {
+export async function getSession(pool: Pool, sessionId: string): Promise<Session | null> {
   const now = new Date();
 
-  const stmt = db.prepare("SELECT id, secret_hash, created_at FROM session WHERE id = ?");
-  const row = stmt.get(sessionId);
+  const res = await pool.query(
+    "SELECT id, secret_hash, created_at FROM session WHERE id = $1",
+    [sessionId]
+  );
 
-  if (!row) return null;
+  if (res.rowCount === 0) return null;
+
+  const row = res.rows[0];
 
   const session: Session = {
     id: row.id,
     secretHash: new Uint8Array(row.secret_hash),
-    createdAt: new Date(row.created_at * 1000)
+    createdAt: new Date(Number(row.created_at) * 1000)
   };
 
   // Check expiration
   if (now.getTime() - session.createdAt.getTime() >= sessionExpiresInSeconds * 1000) {
-    deleteSession(db, sessionId);
+    await deleteSession(pool, sessionId);
     return null;
   }
 
   return session;
 }
 
-export function deleteSession(db: Database, sessionId: string): void {
-  const stmt = db.prepare("DELETE FROM session WHERE id = ?");
-  stmt.run(sessionId);
+export async function deleteSession(pool: Pool, sessionId: string): Promise<void> {
+  await pool.query("DELETE FROM session WHERE id = $1", [sessionId]);
 }
 
 async function hashSecret(secret: string): Promise<Uint8Array> {

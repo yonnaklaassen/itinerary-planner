@@ -1,9 +1,9 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import { createSession, encodeSessionPublicJSON } from "./session";
-import { createDbConnection } from "./session-database";
+import { createDbConnection } from "./db-connection";
 
-const ENV = process.env.NODE_ENV || "development";
+const ENV = process.env.NODE_ENV;
 const ORIGIN = "https://example.com";
 
 const db = createDbConnection();
@@ -19,17 +19,22 @@ app.post("/login", async (req, res) => {
     return res.status(403).json({ error: "Invalid request origin" });
   }
 
-  const session = await createSession(db);
+  try {
+    const session = await createSession(db);
 
-  res.cookie("session_token", session.token, {
-    httpOnly: true,
-    secure: ENV === "production", // only over HTTPS in production
-    maxAge: 86400 * 1000, // 1 day
-    sameSite: "lax",
-    path: "/"
-  });
+    res.cookie("session_token", session.token, {
+      httpOnly: true,
+      secure: ENV === "production",
+      maxAge: 86400 * 1000,
+      sameSite: "lax",
+      path: "/"
+    });
 
-  res.json({ session: JSON.parse(encodeSessionPublicJSON(session)) });
+    res.json({ session: JSON.parse(encodeSessionPublicJSON(session)) });
+  } catch (err) {
+    console.error("Error creating session:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.listen(3000, () =>
