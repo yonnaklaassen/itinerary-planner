@@ -1,0 +1,2 @@
+Database: better-sqlite3
+Authentication: lucia-auth - https://lucia-auth.com

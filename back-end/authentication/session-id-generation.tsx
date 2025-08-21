@@ -1,4 +1,4 @@
-export function generateSecureRandomString(): string {
+function generateSecureRandomString(): string {
 	// Human readable alphabet (a-z, 0-9 without l, o, 0, 1 to avoid confusion)
 	const alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
 
@@ -14,3 +14,5 @@ export function generateSecureRandomString(): string {
 	}
 	return id;
 }
+
+export default generateSecureRandomString;

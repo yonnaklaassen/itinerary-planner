@@ -1,10 +1,13 @@
 {
   "dependencies": {
     "better-sqlite3": "^12.2.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
     "@types/node": "^24.3.0",
     "@types/sqlite3": "^3.1.11"
   }

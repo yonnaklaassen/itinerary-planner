@@ -1,6 +1,7 @@
 import Database from "better-sqlite3/lib/database";
 import { Buffer } from "buffer";
-import { generateSecureRandomString } from "./session-id-generation";
+import generateSecureRandomString from "./session-id-generation";
+
 
 
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
@@ -89,17 +90,24 @@ export function deleteSession(db: Database, sessionId: string): void {
   stmt.run(sessionId);
 }
 
-export async function hashSecret(secret: string): Promise<Uint8Array> {
+async function hashSecret(secret: string): Promise<Uint8Array> {
   const secretBytes = new TextEncoder().encode(secret);
   const secretHashBuffer = await crypto.subtle.digest("SHA-256", secretBytes);
   return new Uint8Array(secretHashBuffer);
 }
 
-export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
+function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.byteLength !== b.byteLength) return false;
   let c = 0;
   for (let i = 0; i < a.byteLength; i++) {
     c |= a[i] ^ b[i];
   }
   return c === 0;
+}
+
+export function encodeSessionPublicJSON(session: Session): string {
+  return JSON.stringify({
+    id: session.id,
+    created_at: Math.floor(session.createdAt.getTime() / 1000)
+  });
 }
