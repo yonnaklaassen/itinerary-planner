@@ -20,7 +20,26 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleRegister = async () => { };
+    const handleRegister = async () => { 
+        try {
+            const response = await fetch('', {
+                method: "POST",
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            if(!response.ok) {
+                //
+            }
+        }catch(error) {
+                //
+        };
+    };
 
     return (
         <Container maxWidth="xs">

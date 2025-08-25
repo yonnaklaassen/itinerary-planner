@@ -57,3 +57,9 @@ Thumbs.db
 *.log
 *.bak
 *.tmp
+
+# =========================
+# Private
+# =========================
+whitelist.json
+useful_commands.txt

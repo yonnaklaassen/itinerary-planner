@@ -1,20 +1,13 @@
 import { Pool } from "pg";
 import { Buffer } from "buffer";
-import generateSecureRandomString from "./session-id-generation";
+import { generateSecureRandomString, hashSecret } from "../security/security.js";
+import { Session, SessionWithToken } from "../models/session.js";
+import { constantTimeEqual } from "../security/security-utils.js";
+
 
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
 
-export interface Session {
-  id: string;
-  secretHash: Uint8Array;
-  createdAt: Date;
-}
-
-export interface SessionWithToken extends Session {
-  token: string;
-}
-
-export async function createSession(pool: Pool): Promise<SessionWithToken> {
+export async function createSession(pool: Pool, userId: number): Promise<SessionWithToken> {
   const now = new Date();
 
   const id = generateSecureRandomString();
@@ -31,13 +24,17 @@ export async function createSession(pool: Pool): Promise<SessionWithToken> {
   };
 
   await pool.query(
-    "INSERT INTO session (id, secret_hash, created_at) VALUES ($1, $2, $3)",
-    [session.id, Buffer.from(session.secretHash), Math.floor(session.createdAt.getTime() / 1000)]
+    "INSERT INTO session (id, user_id, secret_hash, created_at) VALUES ($1, $2, $3, $4)",
+    [
+      session.id,
+      userId,
+      Buffer.from(session.secretHash),
+      Math.floor(session.createdAt.getTime() / 1000)
+    ]
   );
 
   return session;
 }
-
 export async function validateSessionToken(pool: Pool, token: string): Promise<Session | null> {
   const tokenParts = token.split(".");
   if (tokenParts.length !== 2) return null;
@@ -84,26 +81,4 @@ export async function getSession(pool: Pool, sessionId: string): Promise<Session
 
 export async function deleteSession(pool: Pool, sessionId: string): Promise<void> {
   await pool.query("DELETE FROM session WHERE id = $1", [sessionId]);
-}
-
-async function hashSecret(secret: string): Promise<Uint8Array> {
-  const secretBytes = new TextEncoder().encode(secret);
-  const secretHashBuffer = await crypto.subtle.digest("SHA-256", secretBytes);
-  return new Uint8Array(secretHashBuffer);
-}
-
-function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.byteLength !== b.byteLength) return false;
-  let c = 0;
-  for (let i = 0; i < a.byteLength; i++) {
-    c |= a[i] ^ b[i];
-  }
-  return c === 0;
-}
-
-export function encodeSessionPublicJSON(session: Session): string {
-  return JSON.stringify({
-    id: session.id,
-    created_at: Math.floor(session.createdAt.getTime() / 1000)
-  });
 }
