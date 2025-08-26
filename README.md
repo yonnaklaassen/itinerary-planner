@@ -18,10 +18,10 @@ A personal project for planning itineraries with friends & family.
 
 ## 📌 Table of Contents
 
-- [Features](#🚀-features)  
-- [Getting Started](#-🛠️-getting-started)  
-- [Future Improvements](#-⚡-future-improvements)  
-- [License](#-🛡️-license)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Future Improvements](#future-improvements)
+- [License](#license)
 
 ---
 
@@ -43,9 +43,7 @@ A personal project for planning itineraries with friends & family.
 
 ## ⚡ Future Improvements
 - **Trip Planning:** Create a solo or group trip.  
-- **Activity Management:** Add and manage trip activities.  
-- **Friend Sharing:** Share itineraries with friends.  
-- **Notifications:** Reminders for upcoming activities.  
+- **Activity Management:** Add and manage trip activities.   
 
 ---
 
