@@ -4,6 +4,7 @@ import Login from './login';
 import Register from './register';
 import { useTheme } from './themes';
 import CustomNavbar from './navbar';
+import { UserProvider } from './contexts/user-context';
 
 function App() {
   const { theme } = useTheme();
@@ -16,12 +17,14 @@ function App() {
           minHeight: '100vh',                    
         }}
       >
+        <UserProvider>
         <CustomNavbar/>
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
         </Routes>
+        </UserProvider>
       </div>
     </>
   );

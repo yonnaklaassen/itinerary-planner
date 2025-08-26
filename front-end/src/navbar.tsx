@@ -6,9 +6,11 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './navbar.css';
 import { themes, useTheme } from './themes';
+import { useUser } from './contexts/user-context';
 
 function CustomNavbar() {
     const { theme, toggleTheme } = useTheme();
+    const { user } = useUser();
 
     return (
         <Navbar
@@ -25,11 +27,22 @@ function CustomNavbar() {
                     <Nav.Link href="/" style={{ color: theme.textColor }}>
                         Dashboard
                     </Nav.Link>
-                    <Nav.Link href="/login" style={{
-                        color: theme.textColor,
-                    } as React.CSSProperties}>
-                        Login
-                    </Nav.Link>
+                    {!user && (
+                        <Nav.Link
+                            href="/login"
+                            style={{ color: theme.textColor } as React.CSSProperties}
+                        >
+                            Login
+                        </Nav.Link>
+                    )}
+                    {user && (
+                        <Nav.Link
+                            href="/login"
+                            style={{ color: theme.textColor } as React.CSSProperties}
+                        >
+                            Logout ({user.name})
+                        </Nav.Link>
+                    )}
                     <NavDropdown
                         title="Link"
                         id="navbarDropdown"

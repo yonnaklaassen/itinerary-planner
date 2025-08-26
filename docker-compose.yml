@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16
+    container_name: itinerary-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${PG_DATABASE}
+    ports:
+      - "${PG_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itinerary-backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT:-3080}:3080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
