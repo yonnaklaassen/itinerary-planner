@@ -1,7 +1,7 @@
-// src/services/auth-service.ts
 import { Pool } from "pg";
-import { User, PublicUser } from "../models/user.js";
+import { User} from "../models/user.js";
 import { hashPassword, verifyPassword } from "../security/security.js";
+import { PublicUser } from "@shared/model/public-user.js";
 
 export async function registerUser(
   db: Pool,
@@ -9,15 +9,34 @@ export async function registerUser(
   email: string,
   password: string
 ): Promise<PublicUser> {
+  const whitelistCheck = await db.query(
+    `SELECT email FROM email_whitelist WHERE email = $1`,
+    [email]
+  );
+
+  if (whitelistCheck.rows.length === 0) {
+    throw new Error("Email is not in the whitelist.");
+  }
+
+  const existingUser = await db.query(
+    `SELECT id FROM users WHERE email = $1`,
+    [email]
+  );
+
+  if (existingUser.rows.length > 0) {
+    throw new Error("User with this email already exists.");
+  }
+
   const passwordHash = await hashPassword(password);
-  const createdAt = new Date();
 
   const res = await db.query(
-    `INSERT INTO users (name, email, password_hash, created_at)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (name, email, hashed_password)
+     VALUES ($1, $2, $3)
      RETURNING id, name, email`,
-    [name, email, passwordHash, Math.floor(createdAt.getTime() / 1000)]
+    [name, email, passwordHash]
   );
+
+  console.log("User successfully inserted in database table users:", name);
 
   return res.rows[0] as PublicUser;
 }
@@ -31,8 +50,12 @@ export async function loginUser(
   if (res.rowCount === 0) throw new Error("User not found");
 
   const user: User = res.rows[0];
-  const valid = await verifyPassword(password, user.password_hash);
+  const valid = await verifyPassword(password, user.hashed_password);
   if (!valid) throw new Error("Password is not valid");
 
-  return res.rows[0] as PublicUser;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email
+  } as PublicUser;
 }

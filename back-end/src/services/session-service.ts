@@ -3,6 +3,7 @@ import { Buffer } from "buffer";
 import { generateSecureRandomString, hashSecret } from "../security/security.js";
 import { Session, SessionWithToken } from "../models/session.js";
 import { constantTimeEqual } from "../security/security-utils.js";
+import { PublicUser } from "@shared/model/public-user.js";
 
 
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
@@ -18,18 +19,18 @@ export async function createSession(pool: Pool, userId: number): Promise<Session
 
   const session: SessionWithToken = {
     id,
+    userId,
     secretHash,
     createdAt: now,
     token
   };
 
   await pool.query(
-    "INSERT INTO session (id, user_id, secret_hash, created_at) VALUES ($1, $2, $3, $4)",
+    "INSERT INTO sessions (id, user_id, secret_hash) VALUES ($1, $2, $3)",
     [
       session.id,
       userId,
-      Buffer.from(session.secretHash),
-      Math.floor(session.createdAt.getTime() / 1000)
+      Buffer.from(session.secretHash)
     ]
   );
 
@@ -45,7 +46,7 @@ export async function validateSessionToken(pool: Pool, token: string): Promise<S
   const session = await getSession(pool, sessionId);
   if (!session) return null;
 
-  const tokenSecretHash = await hashSecret(sessionSecret);
+  const tokenSecretHash = hashSecret(sessionSecret);
   const validSecret = constantTimeEqual(tokenSecretHash, session.secretHash);
   if (!validSecret) return null;
 
@@ -56,7 +57,7 @@ export async function getSession(pool: Pool, sessionId: string): Promise<Session
   const now = new Date();
 
   const res = await pool.query(
-    "SELECT id, secret_hash, created_at FROM session WHERE id = $1",
+    "SELECT id, secret_hash, created_at FROM sessions WHERE id = $1",
     [sessionId]
   );
 
@@ -66,8 +67,9 @@ export async function getSession(pool: Pool, sessionId: string): Promise<Session
 
   const session: Session = {
     id: row.id,
-    secretHash: new Uint8Array(row.secret_hash),
-    createdAt: new Date(Number(row.created_at) * 1000)
+    userId: row.user_id,
+    secretHash: row.secret_hash,
+    createdAt: new Date()
   };
 
   // Check expiration
@@ -80,5 +82,16 @@ export async function getSession(pool: Pool, sessionId: string): Promise<Session
 }
 
 export async function deleteSession(pool: Pool, sessionId: string): Promise<void> {
-  await pool.query("DELETE FROM session WHERE id = $1", [sessionId]);
+  await pool.query("DELETE FROM sessions WHERE id = $1", [sessionId]);
+}
+
+export async function getUserBySession(db: Pool, token: string): Promise<PublicUser | null> {
+  const res = await db.query(`
+    SELECT u.id, u.name, u.email
+    FROM sessions s
+    JOIN users u ON u.id = s.user_id
+    WHERE s.id = $1
+  `, [token]);
+
+  return res.rows[0] as PublicUser ?? null;
 }

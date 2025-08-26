@@ -6,6 +6,7 @@
 .pnp.js
 /front-end/node_modules
 /back-end/node_modules
+/shared/node_modules
 
 # =========================
 # Logs
@@ -23,6 +24,7 @@ yarn-error.log*
 /dist
 /front-end/build
 /back-end/dist
+/shared/dist
 
 # =========================
 # Testing
@@ -63,3 +65,4 @@ Thumbs.db
 # =========================
 whitelist.json
 useful_commands.txt
+suggestions.txt

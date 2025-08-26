@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "esnext",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "outDir": "dist",
     "rootDir": "src",
+    "baseUrl": "",
+    "paths": {
+      "@shared/*": [
+        "../shared/dist/*"
+      ]
+    },
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
@@ -17,8 +23,9 @@
   "include": [
     "src"
   ],
-  "exclude": [
-    "node_modules",
-    "dist"
+  "references": [
+    {
+      "path": "../shared"
+    }
   ]
 }

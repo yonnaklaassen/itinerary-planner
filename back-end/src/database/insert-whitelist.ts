@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
 async function insertWhitelistEmails() {
-  const db = createDbConnection();
+  const db = await createDbConnection();
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
