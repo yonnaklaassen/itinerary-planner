@@ -1,10 +1,10 @@
 import { Button, CircularProgress, Typography } from "@mui/material";
-import { useUser } from './contexts/user-context';
+import { useUser } from '../hooks/user-context';
 import './home.css';
-import { useTheme } from './contexts/theme-context';
+import { useTheme } from '../themes/theme-context';
 import { useState } from "react";
-import TripDialog from "./trip-dialog";
-import { PageBox, PageContainer } from "./page-container";
+import TripDialog from "../components/trip-dialog";
+import { PageBox, PageContainer } from "../components/page-container";
 
 function Home() {
     const { theme } = useTheme();

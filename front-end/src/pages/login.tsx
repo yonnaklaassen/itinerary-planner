@@ -7,9 +7,9 @@ import {
 } from "@mui/material";
 import { useState, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "./contexts/theme-context";
-import { useUser } from "./contexts/user-context";
-import { PageBox, PageContainer } from "./page-container";
+import { useTheme } from "../themes/theme-context";
+import { useUser } from "../hooks/user-context";
+import { PageBox, PageContainer } from "../components/page-container";
 
 function Login() {
   const { theme } = useTheme();

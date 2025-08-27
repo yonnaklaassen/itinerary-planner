@@ -1,10 +1,10 @@
 import { Routes, Route } from 'react-router-dom';
-import Home from './home';
-import Login from './login';
-import Register from './register';
-import { useTheme } from './contexts/theme-context';
-import CustomNavbar from './navbar';
-import { UserProvider } from './contexts/user-context';
+import Home from './pages/home';
+import Login from './pages/login';
+import Register from './pages/register';
+import { useTheme } from './themes/theme-context';
+import CustomNavbar from './components/navbar';
+import { UserProvider } from './hooks/user-context';
 
 function App() {
   const { theme } = useTheme();

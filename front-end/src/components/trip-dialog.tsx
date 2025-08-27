@@ -1,8 +1,8 @@
 import { Button, Card, CardContent, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { PageBox, PageGrid } from './page-container';
 import './trip-dialog.css';
-import { useTheme } from "./contexts/theme-context";
+import { useTheme } from "../themes/theme-context";
 
 interface TripDialogProps {
     onClose: () => void;
@@ -15,31 +15,31 @@ export default function TripDialog({ onClose }: TripDialogProps) {
         { type: "solo", title: "Solo", description: "Go on a solo adventure, explore at your own pace." },
         { type: "group", title: "Group", description: "Plan a trip with friends or family." },
     ];
-
-    let count = 0;
+    const [step, setStep] = useState<number>(0);
 
     const [tripName, setTripName] = useState<string>("");
+
+    const handleTripNameChange = (e: ChangeEvent<HTMLInputElement>) =>
+        setTripName(e.target.value);
 
     const handleSelectTrip = (type: string) => {
         setSelectedTrip(type);
     };
 
     const handleBack = () => {
-        if (selectedTrip) {
-
-        } else {
+        if (step === 0) {
             onClose();
+        } else {
+            setStep(prev => prev - 1);
         }
     };
 
-    const handleNext = () => {
-        count++;
-    };
+    const handleNext = () => setStep(prev => prev + 1);
 
     return (
         <div className="trip-dialog">
             {/* Step 1: Insert trip name. */}
-            {!tripName &&
+            {step === 0 &&
                 <PageBox>
                     <Typography variant='h3' component="h3">Insert trip name:</Typography>
                     <TextField
@@ -49,6 +49,8 @@ export default function TripDialog({ onClose }: TripDialogProps) {
                         label="Trip name"
                         autoFocus
                         value={tripName}
+                        autoComplete="off"
+                        onChange={handleTripNameChange}
                         sx={{
                             '& .MuiInputBase-input': {
                                 color: theme.textColor,
@@ -60,12 +62,11 @@ export default function TripDialog({ onClose }: TripDialogProps) {
                     />
                 </PageBox>
             }
-            {/* Step 2: Select trip type. */}
-            {tripName && !selectedTrip &&
-                <PageBox lg={"80%"}>
-                    <Typography variant='h3' component="h3">Select the type of trip you want to create:</Typography>
+            {step === 1 &&
+                <PageBox>
+                    <Typography variant='h3' component="h3">Select the trip duration, or skip for now:</Typography>
                     <PageGrid container>
-                        {
+                        {/* {
                             tripOptions.map(({ type, title, description }) => (
                                 <PageGrid lg={12} md={12} key={type}>
                                     <Card className="trip-card"
@@ -84,12 +85,12 @@ export default function TripDialog({ onClose }: TripDialogProps) {
                                         </CardContent>
                                     </Card>
                                 </PageGrid>
-                            ))}
+                            ))} */}
                     </PageGrid>
                 </PageBox>
             }
             {/* Step 3: Next options for selected trip. */}
-            {tripName && selectedTrip &&
+            {step === 2 &&
 
                 <Typography variant="h3" component="h3">Next options for <span className='highlight'>{selectedTrip} </span> trip:</Typography>
 
@@ -101,7 +102,14 @@ export default function TripDialog({ onClose }: TripDialogProps) {
                     Back
                 </Button>
                 {/* Next button. */}
-                <Button variant="contained" onClick={handleNext}>
+                <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    disabled={
+                        (step === 0 && tripName.trim() === "") ||
+                        (step === 1 && !selectedTrip)
+                    }
+                >
                     Next
                 </Button>
             </PageBox>

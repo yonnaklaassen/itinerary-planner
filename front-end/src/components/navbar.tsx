@@ -3,8 +3,8 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './navbar.css';
-import { themes, useTheme } from './contexts/theme-context';
-import { useUser } from './contexts/user-context';
+import { themes, useTheme } from '../themes/theme-context';
+import { useUser } from '../hooks/user-context';
 import { Typography } from '@mui/material';
 import { PageContainer } from './page-container';
 
@@ -37,10 +37,9 @@ function CustomNavbar() {
             collapseOnSelect
         >
                 <Navbar.Brand href="/" style={{ color: theme.textColor }}>
-                    <Typography variant='h3' component="h3">  Itinerary Planner </Typography>
+                    <Typography variant='h4' component="h4">  Itinerary Planner </Typography>
                 </Navbar.Brand>
                 { /** Home button. */}
-
                 <Navbar.Toggle aria-controls="navbar-nav" />
                 <Navbar.Collapse id="navbar-nav">
                     <Nav className="me-auto my-2 my-lg-0">

@@ -7,9 +7,9 @@ import {
 import { LockOutlined } from "@mui/icons-material";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "./contexts/theme-context";
-import { useUser } from "./contexts/user-context";
-import { PageBox, PageContainer } from "./page-container";
+import { useTheme } from "../themes/theme-context";
+import { useUser } from "../hooks/user-context";
+import { PageBox, PageContainer } from "../components/page-container";
 
 function Register() {
     const { theme } = useTheme();

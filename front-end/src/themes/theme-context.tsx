@@ -1,8 +1,8 @@
 import { useState, useContext, createContext, ReactNode } from "react";
 
 export const themes = {
-  light: { backgroundColor: "#f0f4f8", textColor: "#1f2937" },
-  dark: { backgroundColor: "#282c34", textColor: "#ffffff" },
+  light: { backgroundColor: "#f0f4f8", textColor: "#1f2937", textMutedColor: "#6b7280" },
+  dark: { backgroundColor: "#282c34", textColor: "#ffffff", textMutedColor: "#6b7280" },
 };
 
 type ThemeKey = "light" | "dark";
@@ -15,7 +15,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: themes.light,
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
@@ -32,7 +32,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const theme = themes[themeKey]; 
+  const theme = themes[themeKey];
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
