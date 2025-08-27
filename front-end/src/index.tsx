@@ -4,7 +4,10 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from './themes';
+import { ThemeProvider } from './themes/theme-context';
+import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
+import muiTheme from './themes/mui-theme-provider';
+import { CssBaseline } from '@mui/material';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,9 +15,12 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+    <MUIThemeProvider theme={muiTheme}>
     <ThemeProvider>
+    <CssBaseline />
     <App />
     </ThemeProvider>
+    </MUIThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

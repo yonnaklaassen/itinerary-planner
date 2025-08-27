@@ -3,7 +3,7 @@
   --white: #ffffff;
   --color-background-dark: #282c34;
   --color-background-light: #f0f4f8;
-  --color-primary: #91bac7; 
+  --color-primary: #91bac7;
   --color-secondary: #f5a623;
   --color-accent: #4a90e2;
   --color-text: #1f2937;
@@ -11,22 +11,127 @@
   --color-success: #2ecc71;
   --color-warning: #f39c12;
   --color-error: #e74c3c;
+
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+  --font-size-base: 1rem;
+  --font-size-small: 0.875rem;
+  --font-size-medium: 1rem;
+  --font-size-large: 1.5rem;
+  --font-size-xlarge: 1.75rem;
+  --font-size-xxlarge: 2.25rem;
+
+  --line-height-base: 1.75rem;
+  --line-height-heading: 1.5rem;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background-color: var(--color-background-light);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+.highlight {
+  color: var(--color-secondary);
 }
 
+/* p {
+  font-size: var(--font-size-medium);
+  margin: 0 0 1rem 0;
+}
+
+h1 {
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-heading);
+  margin: 0 0 1rem 0;
+}
+
+h2 {
+  font-size: var(--font-size-xlarge);
+  line-height: var(--line-height-heading);
+  margin: 0 0 1rem 0;
+}
+
+h3 {
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-heading);
+  margin: 0 0 0.75rem 0;
+}
+
+h4 {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-heading);
+  margin: 0 0 0.5rem 0;
+}
+
+h5,
+h6 {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-heading);
+  margin: 0 0 0.5rem 0;
+} */
+
 span {
-  color: var(--color-secondary);
+  font-family: inherit;
+  font-size: inherit;
+  text-shadow: 0.05em 0.025em 0.05em rgba(0, 0, 0, 0.25);
+}
+
+a,
+button,
+li,
+.nav-link {
+  font-family: inherit;
+  font-size: var(--font-size-medium);
+  text-shadow: 0.05em 0.025em 0.05em rgba(0,0,0,0.25);
+  padding: 0.5rem 1rem;  
+  margin: 0 0.25rem;    
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+button {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-base);
+}
+
+a,
+.nav-link {
+  text-decoration: none;
+}
+
+.form-check-label {
+  font-family: inherit;
+  font-size: var(--font-size-medium);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --font-size-base: 0.9375rem;
+    --font-size-medium: 0.9375rem;
+    --font-size-large: 1.125rem;
+    --font-size-xlarge: 1.375rem;
+    --font-size-xxlarge: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-base: 0.875rem;
+    --font-size-medium: 0.875rem;
+    --font-size-large: 1rem;
+    --font-size-xlarge: 1.25rem;
+    --font-size-xxlarge: 1.5rem;
+  }
 }

@@ -1,10 +1,10 @@
 export interface Session {
-  id: string;
-  userId: number;
-  secretHash: string;
-  createdAt: Date;
+  readonly id: string;
+  readonly userId: number;
+  readonly secretHash: string;
+  readonly createdAt: Date;
 }
 
 export interface SessionWithToken extends Session {
-  token: string;
+    readonly token: string;
 }

@@ -9,11 +9,10 @@ import { PublicUser } from "@shared/model/public-user.js";
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
 
 export async function createSession(pool: Pool, userId: number): Promise<SessionWithToken> {
-  const now = new Date();
-
+  const createdAt = new Date();
   const id = generateSecureRandomString();
   const secret = generateSecureRandomString();
-  const secretHash = await hashSecret(secret);
+  const secretHash = hashSecret(secret);
 
   const token = id + "." + secret;
 
@@ -21,7 +20,7 @@ export async function createSession(pool: Pool, userId: number): Promise<Session
     id,
     userId,
     secretHash,
-    createdAt: now,
+    createdAt,
     token
   };
 
@@ -30,12 +29,13 @@ export async function createSession(pool: Pool, userId: number): Promise<Session
     [
       session.id,
       userId,
-      Buffer.from(session.secretHash)
+      session.secretHash
     ]
   );
 
   return session;
 }
+
 export async function validateSessionToken(pool: Pool, token: string): Promise<Session | null> {
   const tokenParts = token.split(".");
   if (tokenParts.length !== 2) return null;
@@ -57,7 +57,7 @@ export async function getSession(pool: Pool, sessionId: string): Promise<Session
   const now = new Date();
 
   const res = await pool.query(
-    "SELECT id, secret_hash, created_at FROM sessions WHERE id = $1",
+    "SELECT id, user_id, secret_hash, created_at FROM sessions WHERE id = $1",
     [sessionId]
   );
 
@@ -69,7 +69,7 @@ export async function getSession(pool: Pool, sessionId: string): Promise<Session
     id: row.id,
     userId: row.user_id,
     secretHash: row.secret_hash,
-    createdAt: new Date()
+    createdAt: new Date(row.created_at)
   };
 
   // Check expiration
@@ -85,13 +85,19 @@ export async function deleteSession(pool: Pool, sessionId: string): Promise<void
   await pool.query("DELETE FROM sessions WHERE id = $1", [sessionId]);
 }
 
-export async function getUserBySession(db: Pool, token: string): Promise<PublicUser | null> {
-  const res = await db.query(`
-    SELECT u.id, u.name, u.email
-    FROM sessions s
-    JOIN users u ON u.id = s.user_id
-    WHERE s.id = $1
-  `, [token]);
+export async function getUserBySession(db: Pool, session: Session): Promise<PublicUser | null> {
+  console.log("Looking up user with id:", session.userId);
+  
+  const userRes = await db.query(
+    "SELECT id, name, email FROM users WHERE id = $1",
+    [session.userId]
+  );
 
-  return res.rows[0] as PublicUser ?? null;
+  if (userRes.rowCount === 0) {
+    console.log("No user found for session id:", session.id);
+    return null;
+  }
+
+  console.log("User found:", userRes.rows[0]);
+  return userRes.rows[0] as PublicUser;
 }
