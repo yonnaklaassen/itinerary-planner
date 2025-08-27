@@ -1,17 +1,17 @@
 import bcrypt from "bcrypt";
-import { createHash } from "crypto";
+import { createHash, createHmac } from "crypto";
 import { randomBytes } from "crypto";
 
 export function generateSecureRandomString(): string {
-    const alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
-    const bytes = randomBytes(24);
-    crypto.getRandomValues(bytes);
+  const alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
+  const bytes = randomBytes(24);
+  crypto.getRandomValues(bytes);
 
-    let id = "";
-    for (let i = 0; i < bytes.length; i++) {
-        id += alphabet[bytes[i] % alphabet.length];
-    }
-    return id;
+  let id = "";
+  for (let i = 0; i < bytes.length; i++) {
+    id += alphabet[bytes[i] % alphabet.length];
+  }
+  return id;
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -24,5 +24,6 @@ export function verifyPassword(password: string, hash: string): Promise<boolean>
 }
 
 export function hashSecret(secret: string): string {
-    return createHash("sha256").update(secret).digest("hex");
+  const HMAC_KEY = process.env.SESSION_HMAC_KEY || "super-secret-key";
+  return createHmac("sha256", HMAC_KEY).update(secret).digest("hex");
 }

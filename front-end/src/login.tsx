@@ -1,18 +1,15 @@
 import { LockOutlined } from "@mui/icons-material";
 import {
-  Container,
-  CssBaseline,
-  Box,
   Avatar,
   Typography,
   TextField,
   Button,
-  Grid,
 } from "@mui/material";
 import { useState, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "./themes";
+import { useTheme } from "./contexts/theme-context";
 import { useUser } from "./contexts/user-context";
+import { PageBox, PageContainer } from "./page-container";
 
 function Login() {
   const { theme } = useTheme();
@@ -23,28 +20,29 @@ function Login() {
   const { setUser } = useUser();
 
   const handleLogin = async () => {
-            try {
-            const response = await fetch(`http://localhost:3080/auth/login`, {
-                method: "POST",
-                body: JSON.stringify({ email, password }),
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-            });
+    try {
+      const response = await fetch(`http://localhost:3080/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
 
-            const data = await response.json();
-            if (!response.ok) {
-                alert(`Login failed: ${data.error}`);
-            } else {
-                setUser(data.user);
-                setEmail("");
-                setPassword("");
-                navigate("/");
-            }
-        } catch (error) {
-            console.error("Fetch error:", error);
-            alert("Something went wrong. Please try again.");
-        }
+      const data = await response.json();
+      if (!response.ok) {
+        alert(`Login failed: ${data.error}`);
+      } else {
+        setUser(data.user);
+        setEmail("");
+        setPassword("");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
+
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) =>
     setEmail(e.target.value);
@@ -52,25 +50,15 @@ function Login() {
     setPassword(e.target.value);
 
   return (
-    <Container maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          mt: 20,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Avatar sx={{ m: 1, backgroundColor:  'var(--color-primary)'}}>
+    <PageContainer>
+      <PageBox lg={"70%"}>
+        <Avatar sx={{ m: 1, backgroundColor: 'var(--color-primary)' }}>
           <LockOutlined />
         </Avatar>
-        <Typography variant="h5">Login</Typography>
-        <Box sx={{ mt: 1 }}>
+        <Typography variant="h3" component="h3">Login</Typography>
+        <PageBox>
           <TextField
-            margin="normal"
             required
-            fullWidth
             id="email"
             label="Email Address"
             name="email"
@@ -79,27 +67,17 @@ function Login() {
             onChange={handleEmailChange}
             sx={{
               '& .MuiInputBase-input': {
-                color: theme?.textColor ?? "black",
+                color: theme.textColor,
               },
               '& .MuiInputLabel-root': {
-                color: theme?.textColor ?? "black",
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'var(--color-primary)',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'var(--color-primary)',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'var(--color-primary)',
-              },
+                color: theme.textColor,
+              }
             }}
           />
 
           <TextField
             margin="normal"
             required
-            fullWidth
             id="password"
             name="password"
             label="Password"
@@ -108,43 +86,27 @@ function Login() {
             onChange={handlePasswordChange}
             sx={{
               '& .MuiInputBase-input': {
-                color: theme?.textColor ?? "black",
+                color: theme.textColor,
               },
               '& .MuiInputLabel-root': {
-                color: theme?.textColor ?? "black",
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'var(--color-primary)',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'var(--color-primary)',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'var(--color-primary)',
-              },
+                color: theme.textColor,
+              }
             }}
           />
           <Button
             fullWidth
             variant="contained"
             sx={{
-              mt: 3,
-              mb: 2,
-              backgroundColor: 'var(--color-primary)',
-              color: theme?.textColor ?? "black",
+              color: theme.textColor,
             }}
             onClick={handleLogin}
           >
             Login
           </Button>
-          <Grid container justifyContent="flex-end" spacing={2}>
-            <Grid>
-              <Link style={{ color: theme?.textColor ?? "black",}} to="/register">Don't have an account? <span>Register</span></Link>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
-    </Container>
+          <Link style={{ color: theme.textColor, }} to="/register"> Don't have an account? <span className="highlight">Register</span> </Link>
+        </PageBox>
+      </PageBox>
+    </PageContainer>
   );
 }
 

@@ -1,49 +1,89 @@
-import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './navbar.css';
-import { themes, useTheme } from './themes';
+import { themes, useTheme } from './contexts/theme-context';
 import { useUser } from './contexts/user-context';
+import { Typography } from '@mui/material';
+import { PageContainer } from './page-container';
 
 function CustomNavbar() {
     const { theme, toggleTheme } = useTheme();
-    const { user } = useUser();
+    const { user, setUser } = useUser();
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://localhost:3080/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                console.error("Logout failed");
+                return;
+            }
+            setUser(null);
+        } catch (err) {
+            console.error("Logout error:", err);
+        }
+    };
 
     return (
         <Navbar
             expand="lg"
-            className='navbar-custom'
             bg={theme === themes.light ? "light" : "dark"}
             variant={theme === themes.light ? "light" : "dark"}
+            collapseOnSelect
         >
-            <Container fluid>
                 <Navbar.Brand href="/" style={{ color: theme.textColor }}>
-                    Itinerary Planner
+                    <Typography variant='h3' component="h3">  Itinerary Planner </Typography>
                 </Navbar.Brand>
-                <Nav className="me-auto my-2 my-lg-0">
-                    <Nav.Link href="/" style={{ color: theme.textColor }}>
-                        Dashboard
-                    </Nav.Link>
-                    {!user && (
-                        <Nav.Link
-                            href="/login"
-                            style={{ color: theme.textColor } as React.CSSProperties}
-                        >
-                            Login
+                { /** Home button. */}
+
+                <Navbar.Toggle aria-controls="navbar-nav" />
+                <Navbar.Collapse id="navbar-nav">
+                    <Nav className="me-auto my-2 my-lg-0">
+                        <Nav.Link href="/" style={{ color: theme.textColor }}>
+                            Home
                         </Nav.Link>
-                    )}
-                    {user && (
-                        <Nav.Link
-                            href="/login"
-                            style={{ color: theme.textColor } as React.CSSProperties}
-                        >
-                            Logout ({user.name})
-                        </Nav.Link>
-                    )}
-                    <NavDropdown
+                        { /** My trips button. */}
+                        {user && (
+                            <Nav.Link
+                                className='nav-link'
+                                href="/trips"
+                                style={{ color: theme.textColor } as React.CSSProperties}
+                            >
+                                My trips
+                            </Nav.Link>
+                        )}
+                        { /** Notifications button. */}
+                        {user && (
+                            <Nav.Link
+                                className='nav-link'
+                                href="/notifications"
+                                style={{ color: theme.textColor } as React.CSSProperties}
+                            >
+                                Notifications
+                            </Nav.Link>
+                        )}
+                        {/* Login/Logout buttons. */}
+                        {user ? (
+                            <Nav.Link
+                                className='nav-link'
+                                href="#"
+                                onClick={handleLogout}
+                                style={{ color: theme.textColor }}
+                            >
+                                Logout ({user.name})
+                            </Nav.Link>
+                        ) : (
+                            <Nav.Link
+                                className='nav-link' href="/login" style={{ color: theme.textColor }}>
+                                Login
+                            </Nav.Link>
+                        )}
+                        {/* <NavDropdown
                         title="Link"
                         id="navbarDropdown"
                         style={{
@@ -60,28 +100,29 @@ function CustomNavbar() {
                     </NavDropdown>
                     <Nav.Link href="#" disabled>
                         Link
-                    </Nav.Link>
-                </Nav>
+                    </Nav.Link> */}
+                    </Nav>
 
-                <Form className="d-flex align-items-center">
-                    {/* <Form.Control
+                    <Form className="d-flex align-items-center">
+                        {/* <Form.Control
                         type="search"
                         placeholder="Search"
                         aria-label="Search"
                         className='me-2'
                     /> */}
 
-                    <Form.Check
-                        type="switch"
-                        id="theme-switch"
-                        label={theme === themes.light ? "Light" : "Dark"}
-                        onChange={toggleTheme}
-                        checked={theme === themes.dark}
-                        className='me-2'
-                    />
-                </Form>
-            </Container>
+                        <Form.Check
+                            type="switch"
+                            id="theme-switch"
+                            label={theme === themes.light ? "Light" : "Dark"}
+                            onChange={toggleTheme}
+                            checked={theme === themes.dark}
+                            className='me-2'
+                        />
+                    </Form>
+                </Navbar.Collapse >
         </Navbar>
+
     );
 }
 
