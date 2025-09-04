@@ -8,3 +8,10 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
+
+export interface CreateTripRequest {
+  tripName: string;
+  destination: string;
+  startingDate: Date;
+  endingDate: Date;
+}

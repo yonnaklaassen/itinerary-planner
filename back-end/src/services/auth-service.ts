@@ -35,11 +35,7 @@ export async function registerUser(
      RETURNING id, name, email`,
     [name, email, passwordHash]
   );
-
-  const user = res.rows[0]; 
-  console.log("User successfully inserted in database table users:", user.name, " with user ID: ", user.id);
-
-  return user as PublicUser;
+  return res.rows[0] as PublicUser;
 }
 
 export async function loginUser(
@@ -53,8 +49,6 @@ export async function loginUser(
   const user: User = res.rows[0];
   const valid = await verifyPassword(password, user.hashed_password);
   if (!valid) throw new Error("Password is not valid");
-
-  console.log("User successfully found in database:", email);
 
   return {
     id: user.id,

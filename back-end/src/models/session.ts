@@ -1,6 +1,6 @@
 export interface Session {
   readonly id: string;
-  readonly userId: number;
+  readonly userId: string;
   readonly secretHash: string;
   readonly createdAt: Date;
 }

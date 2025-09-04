@@ -16,6 +16,7 @@ app.use(cors({
 }));
 
 app.use("/auth", authRoutes(db))
+app.use("/trip", authRoutes(db))
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );

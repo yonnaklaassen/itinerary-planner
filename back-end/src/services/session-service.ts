@@ -86,18 +86,14 @@ export async function deleteSession(pool: Pool, sessionId: string): Promise<void
 }
 
 export async function getUserBySession(db: Pool, session: Session): Promise<PublicUser | null> {
-  console.log("Looking up user with id:", session.userId);
-  
   const userRes = await db.query(
     "SELECT id, name, email FROM users WHERE id = $1",
     [session.userId]
   );
 
   if (userRes.rowCount === 0) {
-    console.log("No user found for session id:", session.id);
     return null;
   }
 
-  console.log("User found:", userRes.rows[0]);
   return userRes.rows[0] as PublicUser;
 }

@@ -3,7 +3,7 @@ import { encodeSessionPublicJSON } from "../security/security-utils.js";
 import { loginUser, registerUser } from "../services/auth-service.js";
 import { createSession, deleteSession, getSession, getUserBySession, validateSessionToken } from "../services/session-service.js";
 import { Pool } from "pg";
-import { PublicUser } from "@shared/model/public-user";
+import { PublicUser } from "@shared/model/public-user.js";
 import { LoginRequest, RegisterRequest } from "@shared/model/request-bodies.js";
 
 
@@ -66,10 +66,11 @@ export default function authRoutes(db: Pool) {
 
   router.post("/logout", async (req, res) => {
     const sessionToken = req.cookies["session_token"];
+    const [sessionId] = sessionToken.split(".");
     try {
       if (sessionToken) {
         
-        await deleteSession(db, sessionToken);
+        await deleteSession(db, sessionId);
 
         res.clearCookie("session_token", {
           httpOnly: true,

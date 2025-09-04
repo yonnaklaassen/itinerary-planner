@@ -7,6 +7,7 @@ import CustomDateRangePicker from "./date-range-picker";
 import { Dayjs } from "dayjs";
 import LocationInput from "./location-input";
 import { Libraries, LoadScript, useLoadScript } from "@react-google-maps/api";
+import { Spinner } from "react-bootstrap";
 
 interface TripDialogProps {
     onClose: () => void;
@@ -17,18 +18,15 @@ const GOOGLE_MAPS_LIBRARIES = ["places"] as Libraries;
 
 export default function TripDialog({ onClose }: TripDialogProps) {
     const { theme } = useTheme();
-    const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
-    const tripOptions = [
-        { type: "solo", title: "Solo", description: "Go on a solo adventure, explore at your own pace." },
-        { type: "group", title: "Group", description: "Plan a trip with friends or family." },
-    ];
     const [step, setStep] = useState<number>(0);
+
+    const [tripName, setTripName] = useState<string>("");
+    const [destination, setDestination] = useState<string | null>(null);
+
     const [startingDate, setStartDate] = useState<Dayjs | null>(null);
     const [endingDate, setEndDate] = useState<Dayjs | null>(null);
 
-    const [city, setCity] = useState<string | null>(null);
-    const [country, setCountry] = useState<string | null>(null);
-    const [tripName, setTripName] = useState<string>("");
+    const [isLoading, setLoading] = useState(false);
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -52,15 +50,53 @@ export default function TripDialog({ onClose }: TripDialogProps) {
         }
     };
 
-    const handleNext = () => setStep(prev => prev + 1);
+    const handleSetupTrip = async () => {
+        setLoading(true);
+        try {
+            console.log({ tripName, destination, startingDate, endingDate });
+
+            const response = await fetch(`http://localhost:3080/trip/create`, {
+                method: "POST",
+                body: JSON.stringify({ tripName, destination, startingDate, endingDate }),
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                alert(`Failed to create trip: ${data.error}`);
+            } else {
+                setTripName("");
+                setDestination(null);
+                setStartDate(null);
+                setEndDate(null);
+                setStep(0);
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            alert("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleNext = () => {
+        setStep(prev => {
+            const nextStep = prev + 1;
+            if (nextStep === 3) {
+                handleSetupTrip();
+            }
+
+            return nextStep;
+        });
+    };
 
     const handleSkipDates = () => {
-        handleNext()
-    }
+        handleNext();
+    };
 
     const isNextDisabled = () => {
         if (step === 0) return tripName.trim() === "";
-        if (step === 1) return !city || !country;
+        if (step === 1) return !destination;
         if (step === 2) return !startingDate && !endingDate;
         return false;
     };
@@ -100,9 +136,12 @@ export default function TripDialog({ onClose }: TripDialogProps) {
                     ) : (
                         <>
                             <Typography variant="h3" component="h3">
-                                Insert your destination:
+                                Insert your destination (or skip for now):
                             </Typography>
-                            <LocationInput label="Destination" value={country} onChange={setCountry} />
+                            <Typography variant="body1" component="p">
+                                You are able to add more destinations later!
+                            </Typography>
+                            <LocationInput label="Country or city" value={destination} onChange={setDestination} />
                         </>
                     )}
                 </PageBox>
@@ -110,7 +149,7 @@ export default function TripDialog({ onClose }: TripDialogProps) {
             {
                 step === 2 && (
                     <PageBox>
-                        <Typography variant='h3' component="h3">Select the trip duration, or skip for now:</Typography>
+                        <Typography variant='h3' component="h3">Select the trip duration (or skip for now):</Typography>
                         <PageGrid container>
                             <CustomDateRangePicker onChange={handleDateRangeChange} />
                             {/* {
@@ -140,35 +179,43 @@ export default function TripDialog({ onClose }: TripDialogProps) {
             {
                 step === 3 &&
 
-                <Typography variant="h3" component="h3">Next options for <span className='highlight'>{selectedTrip} </span> trip:</Typography>
+                <><Typography variant="h3" component="h3">Seting up dashboard...</Typography>
+                    {isLoading &&
+                        (<Spinner />)
 
+                    }
+                </>
             }
-
-            <PageBox sx={{ display: 'flex', flexDirection: 'row' }}>
-                {/* Back button. */}
-                <Button variant="contained" onClick={handleBack}>
-                    Back
-                </Button>
-                {/* Skip button. */}
-                {
-                    (step === 1 || step === 2) &&
-                    <Button variant="contained" onClick={handleSkipDates} sx={{
-                        opacity: 0.6,
-                        '&:hover': {
-                            opacity: 1,
-                        },
-                    }} >
-                        Skip for now
-                    </Button>
-                }
-                {/* Next button. */}
-                <Button
-                    variant="contained"
-                    onClick={handleNext}
-                    disabled={isNextDisabled()}>
-                    Next
-                </Button>
-            </PageBox>
+            {
+                step !== 3 && (
+                    <PageBox sx={{ display: 'flex', flexDirection: 'row' }}>
+                        {/* Back button. */}
+                        <Button variant="contained"
+                            onClick={handleBack}>
+                            Back
+                        </Button>
+                        {/* Skip button. */}
+                        {
+                            (step === 1 || step === 2) &&
+                            <Button variant="contained" onClick={handleSkipDates} sx={{
+                                opacity: 0.6,
+                                '&:hover': {
+                                    opacity: 1,
+                                },
+                            }} >
+                                Skip for now
+                            </Button>
+                        }
+                        {/* Next button. */}
+                        <Button
+                            variant="contained"
+                            onClick={handleNext}
+                            disabled={isNextDisabled()}>
+                            Next
+                        </Button>
+                    </PageBox>
+                )
+            }
         </div >
     );
 }

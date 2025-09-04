@@ -1,7 +1,7 @@
 export interface User {
-  id: number;
+  readonly id: string;
   name: string;
   email: string;
-  hashed_password: string; 
-  created_at: Date;
+  hashed_password: string;
+  readonly created_at: Date;
 }
