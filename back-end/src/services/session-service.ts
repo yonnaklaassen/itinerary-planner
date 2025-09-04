@@ -1,5 +1,4 @@
 import { Pool } from "pg";
-import { Buffer } from "buffer";
 import { generateSecureRandomString, hashSecret } from "../security/security.js";
 import { Session, SessionWithToken } from "../models/session.js";
 import { constantTimeEqual } from "../security/security-utils.js";
@@ -8,7 +7,7 @@ import { PublicUser } from "@shared/model/public-user.js";
 
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
 
-export async function createSession(pool: Pool, userId: number): Promise<SessionWithToken> {
+export async function createSession(pool: Pool, userId: string): Promise<SessionWithToken> {
   const createdAt = new Date();
   const id = generateSecureRandomString();
   const secret = generateSecureRandomString();

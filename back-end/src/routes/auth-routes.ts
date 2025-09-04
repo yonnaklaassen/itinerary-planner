@@ -6,8 +6,6 @@ import { Pool } from "pg";
 import { PublicUser } from "@shared/model/public-user.js";
 import { LoginRequest, RegisterRequest } from "@shared/model/request-bodies.js";
 
-
-
 const isProd = process.env.NODE_ENV == "production";
 const sessionTime = 7 * 24 * 60 * 60 * 1000;
 
@@ -45,7 +43,7 @@ export default function authRoutes(db: Pool) {
     const { email, password } = req.body as LoginRequest;
 
     try {
-      const user = await loginUser(db, email, password);
+      const user: PublicUser = await loginUser(db, email, password);
       const session = await createSession(db, user.id);
 
       res.cookie("session_token", session.token, {

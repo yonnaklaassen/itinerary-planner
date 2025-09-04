@@ -1,5 +1,5 @@
+import { PublicUser } from "@shared/model/public-user";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { PublicUser } from "@shared/model/public-user.js";
 
 interface UserContextType {
   user: PublicUser | null;
