@@ -64,11 +64,10 @@ export default function authRoutes(db: Pool) {
 
   router.post("/logout", async (req, res) => {
     const sessionToken = req.cookies["session_token"];
-    const [sessionId] = sessionToken.split(".");
     try {
       if (sessionToken) {
         
-        await deleteSession(db, sessionId);
+        await deleteSession(db, sessionToken);
 
         res.clearCookie("session_token", {
           httpOnly: true,

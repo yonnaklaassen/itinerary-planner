@@ -12,7 +12,7 @@ export async function createDbConnection(): Promise<Pool> {
       port: Number(process.env.PG_PORT) || 5432,
     });
 
-    createTables(pool);
+    await createTables(pool);
   }
   return pool;
 }

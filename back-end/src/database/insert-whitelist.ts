@@ -26,8 +26,8 @@ async function insertWhitelistEmails() {
     }
     console.log("Whitelist insertion complete.");
   } finally {
-    await db.end?.(); 
+
   }
 }
 
-insertWhitelistEmails();
+insertWhitelistEmails().then(() => process.exit(0));

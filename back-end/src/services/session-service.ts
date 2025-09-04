@@ -8,29 +8,27 @@ import { PublicUser } from "@shared/model/public-user.js";
 const sessionExpiresInSeconds = 60 * 60 * 24; // 24 hours
 
 export async function createSession(pool: Pool, userId: string): Promise<SessionWithToken> {
-  const createdAt = new Date();
-  const id = generateSecureRandomString();
   const secret = generateSecureRandomString();
   const secretHash = hashSecret(secret);
 
-  const token = id + "." + secret;
+  const result = await pool.query(
+    `INSERT INTO sessions (user_id, secret_hash)
+     VALUES ($1, $2)
+     RETURNING id, created_at`,
+    [userId, secretHash]
+  );
+
+  const sessionId: string = result.rows[0].id;
+  const createdAt: Date = result.rows[0].created_at;
+  const token = sessionId + "." + secret;
 
   const session: SessionWithToken = {
-    id,
+    id: sessionId,
     userId,
     secretHash,
     createdAt,
     token
   };
-
-  await pool.query(
-    "INSERT INTO sessions (id, user_id, secret_hash) VALUES ($1, $2, $3)",
-    [
-      session.id,
-      userId,
-      session.secretHash
-    ]
-  );
 
   return session;
 }
